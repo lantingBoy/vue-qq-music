@@ -2,7 +2,6 @@
   <div class="recommend" ref="recommend">
     <scroll ref="scroll" class="recommend-content" :data="discList">
       <div>
-
         <div class="swiper-container">
           <div class="swiper-wrapper">
             <div class="swiper-slide" v-for="item in recommends">
@@ -18,7 +17,7 @@
           <ul>
             <li v-for="item in discList" class="item">
               <div class="icon">
-                <img width="60" height="60"  :src="item.imgurl">
+                <img width="60" height="60"  v-lazy="item.imgurl">
               </div>
               <div class="text">
                 <h2 class="name" v-html="item.creator.name"></h2>
@@ -35,7 +34,6 @@
     <router-view></router-view>
   </div>
 </template>
-
 <script type="text/ecmascript-6">
 
   import Loading from 'base/loading/loading'
@@ -51,12 +49,14 @@
       }
     },
     created() {
-      this._getRecommend()
-
-      this._getDiscList()
+      this._getRecommend();
+      setTimeout(()=>{
+        this._getDiscList()
+      },700)
+    },
+    mounted(){
     },
     methods: {
-
       _getRecommend() {
         getRecommend().then((res) => {
           if (res.code === ERR_OK) {
@@ -81,7 +81,6 @@
       }
     },
     components: {
-
       Loading,
       Scroll
     }

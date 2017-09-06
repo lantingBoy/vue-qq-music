@@ -7,12 +7,15 @@ import VueLazyload from 'vue-lazyload'
 import './common/css/swiper.min.css'
 import 'common/stylus/index.styl'
 
-fastclick.attach(document.body)
+fastclick.attach(document.body);
 
+Vue.use(VueLazyload,{  //使用懒加载
+  loading:require('common/image/default.png')
+});
 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,
   render: h => h(App)
-})
+});
