@@ -1,7 +1,9 @@
 <template>
   <div class="m-header">
-    <div class="icon"></div>
-    <h1 class="text">Chicken Music</h1>
+    <div class="icon">
+      <img src="./default.jpg" style="width:30px;height: 30px;border-radius:999px">
+    </div>
+    <h1 class="text">Mr.z Music</h1>
   </div>
 </template>
 
@@ -26,13 +28,12 @@
       width: 30px
       height: 32px
       margin-right: 9px
-      bg-image('logo')
       background-size: 30px 32px
     .text
       display: inline-block
       vertical-align: top
       line-height: 44px
-      font-size: $font-size-large
+      font-size: 14px
     .mine
       position: absolute
       top: 0

@@ -1,6 +1,6 @@
 <template>
   <div>
-    排行页面
+    三宝嘿嘿嘿
   </div>
 </template>
 
