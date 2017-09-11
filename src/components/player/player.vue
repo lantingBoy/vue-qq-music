@@ -37,7 +37,7 @@
             <span class="dot" ></span>
           </div>
           <div class="progress-wrapper">
-            <span class="time time-l"></span>
+            <span class="time time-l">{{getTime(currentTime)}}</span>
 
             <span class="time time-r"></span>
           </div>
@@ -46,14 +46,14 @@
             <div class="icon i-left" >
               <i class="icon-mode"></i>
             </div>
-            <div class="icon i-left" >
-              <i  class="icon-prev"></i>
+            <div class="icon i-left" :class="disableCls">
+              <i  class="icon-prev" @click="prev"></i>
             </div>
-            <div class="icon i-center" >
+            <div class="icon i-center" :class="disableCls">
               <i  :class="playIcon" @click="togglePlaying"></i>
             </div>
-            <div class="icon i-right" >
-              <i  class="icon-next"></i>
+            <div class="icon i-right" :class="disableCls">
+              <i @click="next" class="icon-next"></i>
             </div>
             <div class="icon i-right">
               <i class="icon icon-not-favorite"></i>
@@ -79,7 +79,7 @@
         </div>
       </div>
     </transition>
-    <audio :src="currentSong.url" ref="audio"></audio>
+    <audio :src="currentSong.url" ref="audio" @canplay="ready()" @error="error" @timeupdate="updateTime"></audio>
   </div>
 </template>
 
@@ -89,21 +89,31 @@
   import{prefixStyle} from 'common/js/dom'
   const transform =prefixStyle('transform')
   export default{
+    data(){
+      return {
+        songReady:false,
+        currentTime:0
+      }
+    },
     computed:{
         cdClass(){
-            return this.playing?'play':'pause'
+            return this.playing?'play':'pause'   //通过v-bind class 在计算属性中计算当前播放按钮的旋转
         },
         playIcon(){
-          return this.playing?'icon-pause':'icon-play'
+          return this.playing?'icon-pause':'icon-play'  //通过v-bind class 在计算属性中计算当前播放按钮的样式
         },
         miniIcon(){
-          return this.playing?'icon-pause-mini':'icon-play-mini'
+          return this.playing?'icon-pause-mini':'icon-play-mini' //通过v-bind class 在计算属性中计算当前播放按钮的样式
+        },
+        disableCls(){
+          return this.songReady?'':'disable'
         },
       ...mapGetters([
         'fullScreen',
         'playList',
-        'currentSong',
-        'playing'  //取到播放状态
+        'currentSong', //取到当前的播放歌曲
+        'playing' , //取到播放状态
+        'currentIndex'
       ])
     },
     methods:{
@@ -113,9 +123,60 @@
       open(){
         this.set(true)  //小播放器点击
       },
+      prev(){
+        if(!this.songReady){
+            console.log(1)
+          return
+        }
+        let index=this.currentIndex-1;
+        if(index===-1){
+            index=this.playList.length-1
+        }
+        this.setCurrentIndex(index)
+        if(!this.playing){
+          this.togglePlaying()
+        }
+        this.songReady=false
+      },
+      next(){
+        if(!this.songReady){
+          return
+        }
+        let index=this.currentIndex+1;
+        if(index===this.playList.length){
+          index=0
+        }
+        this.setCurrentIndex(index)
+        if(!this.playing){
+          this.togglePlaying()
+        }
+        this.songReady=false
+      },
+      ready(){
+        this.songReady=true
+      },
+      error(){
+        this.songReady=true
+      },
+      updateTime(e){
+        this.currentTime=e.target.currentTime
+      },
+      getTime(interval){
+        let minute=interval/60 | 0;
+        let seconds=this.two(interval%60 | 0);
+        return `${minute}:${seconds}`
+      },
+      two(num,n=2){
+        let len=num.toString().length;
+        while(len<2){
+            num='0'+num
+        }
+        return num
+      },
       ...mapMutations({  //组件中提交mutaions
         set:'SET_FULL_SCREEN', //取到 mutations中设置是否全屏的方法  然后给这个方法命名为set
-        setPlaying:'SET_PLAYING_STATE' // 取到当前播放状态
+        setPlaying:'SET_PLAYING_STATE' ,// 取到当前播放状态
+        setCurrentIndex:'SET_CURRENT_INDEX' //取到当前的索引
       }),
       getElmentPositionAndScale:function(){
         const minLeft=40
@@ -177,6 +238,9 @@
         this.$refs.cdWrapper.style.transform=""
       },
       togglePlaying(){
+        if(!this.songReady){
+          return
+        }
         this.setPlaying(!this.playing) // 对播放取反
       }
     },
@@ -189,7 +253,7 @@
         playing(newPlaying){  //监听playing
           const audio=this.$refs.audio
           this.$nextTick(()=>{
-            newPlaying?audio.play():audio.pause()
+            newPlaying?audio.play():audio.pause()  // 有于audio标签 需要在dom 加载完成后才能调用 所以用$nextTick函数
           })
         }
     }

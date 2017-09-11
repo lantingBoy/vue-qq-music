@@ -55,16 +55,11 @@
 
       setTimeout(()=>{
         this._getDiscList()
-      },700)
+      },700);
+
     },
     mounted(){
-      let swiper = new Swiper ('.swiper-container', {
-        pagination: '.swiper-pagination',
-        paginationClickable: true,
-        centeredSlides: true,
-        autoplay: 1500,
-        autoplayDisableOnInteraction: false
-      })
+
     },
     methods: {
       _getRecommend() {
@@ -81,6 +76,7 @@
             autoplayDisableOnInteraction: false
           })
         })
+
       },
       _getDiscList() {
         getDiscList().then((res) => {
